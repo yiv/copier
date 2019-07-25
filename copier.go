@@ -30,6 +30,12 @@ func Copy(toValue interface{}, fromValue interface{}) (err error) {
 	// Just set it if possible to assign
 	// And need to do copy anyway if the type is struct
 	if fromType.Kind() != reflect.Struct && from.Type().AssignableTo(to.Type()) {
+		if from.Kind() == reflect.Slice && from.Len() == 0 {
+			s := makeslice(to.Interface())
+			to.Set(reflect.ValueOf(s))
+			return
+		}
+
 		to.Set(from)
 		return
 	}
@@ -49,6 +55,7 @@ func Copy(toValue interface{}, fromValue interface{}) (err error) {
 		var dest, source reflect.Value
 
 		if isSlice {
+
 			// source
 			if from.Kind() == reflect.Slice {
 				source = indirect(from.Index(i))
@@ -69,7 +76,6 @@ func Copy(toValue interface{}, fromValue interface{}) (err error) {
 			// Copy from field to field or method
 			for _, field := range fromTypeFields {
 				name := field.Name
-
 				if fromField := source.FieldByName(name); fromField.IsValid() {
 					// has field
 					if toField := dest.FieldByName(name); toField.IsValid() {
@@ -186,4 +192,11 @@ func set(to, from reflect.Value) bool {
 		}
 	}
 	return true
+}
+
+func makeslice(slice interface{}) interface{} {
+	newsliceval := reflect.MakeSlice(reflect.TypeOf(slice), 0, 0)
+	newslice := reflect.New(newsliceval.Type()).Elem()
+	newslice.Set(newsliceval)
+	return newslice.Interface()
 }

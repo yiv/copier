@@ -19,7 +19,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/jinzhu/copier"
+	"github.com/yiv/copier"
 )
 
 type User struct {
@@ -47,7 +47,7 @@ func (employee *Employee) Role(role string) {
 func main() {
 	var (
 		user      = User{Name: "Jinzhu", Age: 18, Role: "Admin"}
-		users     = []User{{Name: "Jinzhu", Age: 18, Role: "Admin"}, {Name: "jinzhu 2", Age: 30, Role: "Dev"}}
+		users     = []User{{Name: "Jinzhu", Age: 18, Role: "Admin"}, {Name: "yiv 2", Age: 30, Role: "Dev"}}
 		employee  = Employee{}
 		employees = []Employee{}
 	)
@@ -78,7 +78,7 @@ func main() {
 	fmt.Printf("%#v \n", employees)
 	// []Employee{
 	//   {Name: "Jinzhu", Age: 18, DoubleAge: 36, EmployeId: 0, SuperRule: "Super Admin"},
-	//   {Name: "jinzhu 2", Age: 30, DoubleAge: 60, EmployeId: 0, SuperRule: "Super Dev"},
+	//   {Name: "yiv 2", Age: 30, DoubleAge: 60, EmployeId: 0, SuperRule: "Super Dev"},
 	// }
 }
 ```
@@ -89,12 +89,12 @@ You can help to make the project better, check out [http://gorm.io/contribute.ht
 
 # Author
 
-**jinzhu**
+**yiv**
 
-* <http://github.com/jinzhu>
+* <http://github.com/yiv>
 * <wosmvp@gmail.com>
-* <http://twitter.com/zhangjinzhu>
+* <http://twitter.com/zhangyiv>
 
 ## License
 
-Released under the [MIT License](https://github.com/jinzhu/copier/blob/master/License).
+Released under the [MIT License](https://github.com/yiv/copier/blob/master/License).

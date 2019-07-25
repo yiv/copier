@@ -1,12 +1,14 @@
 package copier_test
 
 import (
+	"encoding/json"
 	"errors"
+	"fmt"
 	"reflect"
 	"testing"
 	"time"
 
-	"github.com/jinzhu/copier"
+	"github.com/yiv/copier"
 )
 
 type User struct {
@@ -78,7 +80,7 @@ func checkEmployee(employee Employee, user User, t *testing.T, testCase string) 
 func TestCopySameStructWithPointerField(t *testing.T) {
 	var fakeAge int32 = 12
 	var currentTime time.Time = time.Now()
-	user := &User{Birthday: &currentTime, Name: "Jinzhu", Nickname: "jinzhu", Age: 18, FakeAge: &fakeAge, Role: "Admin", Notes: []string{"hello world", "welcome"}, flags: []byte{'x'}}
+	user := &User{Birthday: &currentTime, Name: "Jinzhu", Nickname: "yiv", Age: 18, FakeAge: &fakeAge, Role: "Admin", Notes: []string{"hello world", "welcome"}, flags: []byte{'x'}}
 	newUser := &User{}
 	copier.Copy(newUser, user)
 	if user.Birthday == newUser.Birthday {
@@ -104,7 +106,7 @@ func checkEmployee2(employee Employee, user *User, t *testing.T, testCase string
 
 func TestCopyStruct(t *testing.T) {
 	var fakeAge int32 = 12
-	user := User{Name: "Jinzhu", Nickname: "jinzhu", Age: 18, FakeAge: &fakeAge, Role: "Admin", Notes: []string{"hello world", "welcome"}, flags: []byte{'x'}}
+	user := User{Name: "Jinzhu", Nickname: "yiv", Age: 18, FakeAge: &fakeAge, Role: "Admin", Notes: []string{"hello world", "welcome"}, flags: []byte{'x'}}
 	employee := Employee{}
 
 	if err := copier.Copy(employee, &user); err == nil {
@@ -320,4 +322,23 @@ func TestScanner(t *testing.T) {
 	if s.V.V != s2.V.V {
 		t.Errorf("Field V should be copied")
 	}
+}
+
+func TestNilSliceOfStruct(t *testing.T) {
+	type Stu struct {
+		Name   string
+		Reward []int
+	}
+	type Man struct {
+		Name   string
+		Reward []int
+	}
+	//s := Stu{Name: "aa"}
+	//d := Man{}
+
+	var s1 []string
+	var d2 []string
+	copier.Copy(&d2, &s1)
+	r, _ := json.Marshal(map[string]interface{}{"data": d2})
+	fmt.Println(string(r))
 }
