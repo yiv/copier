@@ -1,14 +1,13 @@
-package copier_test
+package copier
 
 import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/jinzhu/copier"
 	"reflect"
 	"testing"
 	"time"
-
-	"github.com/yiv/copier"
 )
 
 type User struct {
@@ -326,19 +325,25 @@ func TestScanner(t *testing.T) {
 
 func TestNilSliceOfStruct(t *testing.T) {
 	type Stu struct {
-		Name   string
-		Reward []int
+		Name    string
+		Reward  []int
+		MapData map[string]string
 	}
 	type Man struct {
-		Name   string
-		Reward []int
+		Name    string
+		Reward  []int
+		MapData map[string]string
 	}
+	s := Stu{Name: "aa", Reward: []int{1, 2, 3}}
 	//s := Stu{Name: "aa"}
-	//d := Man{}
+	d := Man{}
+	Copy(&d, &s)
 
-	var s1 []string
-	var d2 []string
-	copier.Copy(&d2, &s1)
-	r, _ := json.Marshal(map[string]interface{}{"data": d2})
+	//var s []string
+	//var d []string
+	//Copy(&d, &s)
+	//copier.Copy(&d, &s)
+
+	r, _ := json.Marshal(map[string]interface{}{"data": d})
 	fmt.Println(string(r))
 }

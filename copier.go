@@ -35,7 +35,6 @@ func Copy(toValue interface{}, fromValue interface{}) (err error) {
 			to.Set(reflect.ValueOf(s))
 			return
 		}
-
 		to.Set(from)
 		return
 	}
@@ -114,6 +113,7 @@ func Copy(toValue interface{}, fromValue interface{}) (err error) {
 				}
 
 				if fromMethod.IsValid() && fromMethod.Type().NumIn() == 0 && fromMethod.Type().NumOut() == 1 {
+
 					if toField := dest.FieldByName(name); toField.IsValid() && toField.CanSet() {
 						values := fromMethod.Call([]reflect.Value{})
 						if len(values) >= 1 {
@@ -167,6 +167,7 @@ func indirectType(reflectType reflect.Type) reflect.Type {
 
 func set(to, from reflect.Value) bool {
 	if from.IsValid() {
+
 		if to.Kind() == reflect.Ptr {
 			//set `to` to nil if from is nil
 			if from.Kind() == reflect.Ptr && from.IsNil() {
@@ -179,7 +180,16 @@ func set(to, from reflect.Value) bool {
 		}
 
 		if from.Type().ConvertibleTo(to.Type()) {
-			to.Set(from.Convert(to.Type()))
+			if from.Type().Kind() == reflect.Slice && from.Len() == 0 {
+				s := makeslice(to.Interface())
+				to.Set(reflect.ValueOf(s))
+			} else if from.Type().Kind() == reflect.Map && from.IsNil() {
+				s := makemap(to.Interface())
+				to.Set(reflect.ValueOf(s))
+			} else {
+				to.Set(from.Convert(to.Type()))
+			}
+
 		} else if scanner, ok := to.Addr().Interface().(sql.Scanner); ok {
 			err := scanner.Scan(from.Interface())
 			if err != nil {
@@ -199,4 +209,10 @@ func makeslice(slice interface{}) interface{} {
 	newslice := reflect.New(newsliceval.Type()).Elem()
 	newslice.Set(newsliceval)
 	return newslice.Interface()
+}
+func makemap(smap interface{}) interface{} {
+	newval := reflect.MakeMap(reflect.TypeOf(smap))
+	newMap := reflect.New(newval.Type()).Elem()
+	newMap.Set(newval)
+	return newMap.Interface()
 }

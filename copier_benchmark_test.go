@@ -1,10 +1,9 @@
-package copier_test
+package copier
 
 import (
 	"encoding/json"
+	"github.com/jinzhu/copier"
 	"testing"
-
-	"github.com/yiv/copier"
 )
 
 func BenchmarkCopyStruct(b *testing.B) {
