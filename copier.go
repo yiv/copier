@@ -3,7 +3,9 @@ package copier
 import (
 	"database/sql"
 	"errors"
+	"github.com/alioygur/godash"
 	"reflect"
+	"strings"
 )
 
 // Copy copy things
@@ -30,11 +32,6 @@ func Copy(toValue interface{}, fromValue interface{}) (err error) {
 	// Just set it if possible to assign
 	// And need to do copy anyway if the type is struct
 	if fromType.Kind() != reflect.Struct && from.Type().AssignableTo(to.Type()) {
-		if from.Kind() == reflect.Slice && from.Len() == 0 {
-			s := makeslice(to.Interface())
-			to.Set(reflect.ValueOf(s))
-			return
-		}
 		to.Set(from)
 		return
 	}
@@ -48,13 +45,17 @@ func Copy(toValue interface{}, fromValue interface{}) (err error) {
 		if from.Kind() == reflect.Slice {
 			amount = from.Len()
 		}
+
+		if from.Kind() == reflect.Slice && from.Len() == 0 {
+			s := makeslice(to.Interface())
+			to.Set(reflect.ValueOf(s))
+		}
+
 	}
 
 	for i := 0; i < amount; i++ {
 		var dest, source reflect.Value
-
 		if isSlice {
-
 			// source
 			if from.Kind() == reflect.Slice {
 				source = indirect(from.Index(i))
@@ -134,6 +135,20 @@ func Copy(toValue interface{}, fromValue interface{}) (err error) {
 	return
 }
 
+func CopyStruct2Map(toValue map[string]interface{}, fromValue interface{}) {
+	t := indirectType(reflect.TypeOf(fromValue))
+	v := indirect(reflect.ValueOf(fromValue))
+	for i := 0; i < t.NumField(); i++ {
+		name := strings.ToLower(godash.ToSnakeCase(t.Field(i).Name))
+		toValue[name] = v.Field(i).Interface()
+	}
+	return
+}
+
+func CopyTheFields(toValue, fromValue interface{}, fields []string) {
+
+}
+
 func deepFields(reflectType reflect.Type) []reflect.StructField {
 	var fields []reflect.StructField
 
@@ -189,7 +204,6 @@ func set(to, from reflect.Value) bool {
 			} else {
 				to.Set(from.Convert(to.Type()))
 			}
-
 		} else if scanner, ok := to.Addr().Interface().(sql.Scanner); ok {
 			err := scanner.Scan(from.Interface())
 			if err != nil {

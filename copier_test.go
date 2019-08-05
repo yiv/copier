@@ -4,10 +4,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/jinzhu/copier"
 	"reflect"
 	"testing"
 	"time"
+
+	"github.com/jinzhu/copier"
 )
 
 type User struct {
@@ -324,17 +325,28 @@ func TestScanner(t *testing.T) {
 }
 
 func TestNilSliceOfStruct(t *testing.T) {
+	type StuSubs struct {
+		Name string
+	}
 	type Stu struct {
 		Name    string
 		Reward  []int
+		Reward2 []int
 		MapData map[string]string
+		Subs    []StuSubs
+	}
+	type ManSubs struct {
+		Name string
 	}
 	type Man struct {
 		Name    string
 		Reward  []int
+		Reward2 []int
 		MapData map[string]string
+		Subs    []ManSubs
 	}
-	s := Stu{Name: "aa", Reward: []int{1, 2, 3}}
+	s := Stu{Name: "aa", Reward: []int{1, 2, 3}, Subs: []StuSubs{{Name: "www"}}}
+	s = Stu{Name: "aa", Reward: []int{1, 2, 3}}
 	//s := Stu{Name: "aa"}
 	d := Man{}
 	Copy(&d, &s)
@@ -346,4 +358,15 @@ func TestNilSliceOfStruct(t *testing.T) {
 
 	r, _ := json.Marshal(map[string]interface{}{"data": d})
 	fmt.Println(string(r))
+}
+
+func TestStruct2Map(t *testing.T) {
+	type Student struct {
+		NickName string `json:"name"`
+		Age      int    `json:"age"`
+	}
+	s := Student{NickName: "ha", Age: 5}
+	d := map[string]interface{}{}
+	CopyStruct2Map(d, &s)
+	fmt.Println(d)
 }
